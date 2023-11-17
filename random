@@ -1,0 +1,144 @@
+1 - Write a Python program to display first 5 rows from COVID-19 dataset. Also print the dataset information and check the missing
+import pandas as pd
+
+# Load the COVID-19 dataset (replace 'dataset.csv' with the actual file path)
+file_path = '/content/covid_19_clean_complete.csv'
+df = pd.read_csv(file_path)
+
+# Display the first 5 rows
+print("First 5 rows of the dataset:")
+print(df.head())
+
+# Print dataset information
+print("\nDataset Information:")
+print(df.info())
+
+# Check for missing values
+missing_values = df.isnull().sum()
+print("\nMissing Values:")
+print(missing_values)
+
+
+2 - Write a Python program to get the latest number of confirmed, deaths, recovered and active cases of Novel Coronavirus (COVID-19) Country wise.
+
+import pandas as pd
+covid_data= pd.read_csv('/content/covid_19_clean_complete.csv')
+covid_data['Active'] = covid_data['Confirmed'] - covid_data['Deaths'] - covid_data['Recovered']
+result = covid_data.groupby('Country/Region')[['Confirmed', 'Deaths', 'Recovered',
+'Active']].sum().reset_index()
+print(result)
+
+
+3- Write a Python program to get the latest number of confirmed deaths and recovered people of Novel Coronavirus (COVID-19) cases Country/Region - Province/State wise.
+
+import pandas as pd
+covid_data= pd.read_csv('/content/covid_19_clean_complete.csv')
+data = covid_data.groupby(['Country/Region', 'Province/State'])[['Confirmed', 'Deaths',
+'Recovered']].max()
+pd.set_option('display.max_rows', None)
+print(data)
+
+
+4 Write a Python program to list countries with no cases of Novel Coronavirus (COVID-19) recovered.
+
+import pandas as pd
+covid_data= pd.read_csv('/content/covid_19_clean_complete.csv')
+data = covid_data.groupby('Country/Region')[['Confirmed', 'Deaths', 'Recovered']].sum().reset_index()
+result = data[data['Recovered']==0][['Country/Region', 'Confirmed', 'Deaths', 'Recovered']]
+print(result)
+
+
+5- Write a Python program to get the top 10 countries data (Last Update, Country/Region, Confirmed, Death s, Recovered) of Novel Coronavirus (COVID-19).
+import pandas as pd
+covid_data= pd.read_csv('/content/covid_19_clean_complete.csv', usecols = ['Province/State', 'Country/Region',
+'Confirmed', 'Deaths', 'Recovered','Active','WHO Region'])
+result = covid_data.groupby('Country/Region').max().sort_values(by='Confirmed',
+ascending=False)[:10]
+pd.set_option('display.max_column', None)
+print(result)
+
+
+
+
+library(shiny)
+library(DT)
+library(ggplot2)
+library(dplyr)
+
+# Sample data frame to store expenses
+expenses_data <- data.frame(
+  Date = as.Date(c("2023-10-15", "2023-10-11", "2023-10-20")),
+  Category = c("Electronic", "Electronic", "Food"),
+  Amount = c(200, 400, 300),
+  Description = c("Expense 1", "Expense 2", "Expense 3")
+)
+
+# Define the UI
+ui <- fluidPage(
+  titlePanel("Expense Analyzer"),
+  sidebarLayout(
+    sidebarPanel(
+      textInput("description", "Description"),
+      numericInput("amount", "Amount", value = 0),
+      dateInput("date", "Date", value = Sys.Date()),
+      selectInput("category", "Category", choices = unique(expenses_data$Category)),
+      actionButton("add_expense", "Add Expense"),
+      br(),
+      verbatimTextOutput("summary"),
+      br(),
+      plotOutput("category_plot")
+    ),
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Expenses Table", DTOutput("table")),
+        tabPanel("Expense Patterns", plotOutput("patterns"))
+      )
+    )
+  )
+)
+
+# Define the server logic
+server <- function(input, output, session) {
+  user_expenses <- reactiveVal(expenses_data)
+  
+  observeEvent(input$add_expense, {
+    new_expense <- data.frame(
+      Date = as.Date(input$date),
+      Category = input$category,
+      Amount = input$amount,
+      Description = input$description
+    )
+    user_expenses(union(user_expenses(), new_expense))
+  })
+  
+  output$table <- renderDT({
+    datatable(user_expenses())
+  })
+  
+  output$summary <- renderPrint({
+    total_expenses <- sum(user_expenses()$Amount)
+    cat("Total Expenses:", total_expenses)
+  })
+  
+  output$category_plot <- renderPlot({
+    category_summary <- user_expenses() %>%
+      group_by(Category) %>%
+      summarise(Total = sum(Amount))
+    ggplot(category_summary, aes(x = Category, y = Total, fill = Category)) +
+      geom_bar(stat = "identity") +
+      labs(title = "Total Expenses by Category")
+  })
+  
+  output$patterns <- renderPlot({
+    # You can add your own code for analyzing expense patterns here
+    # For example, a time series analysis, trends, or other insights
+    # This is a placeholder for your analysis
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui = ui, server = server)
+
+
+
+	
